@@ -29,33 +29,8 @@ local _Enrage = 184362;
 local _FuriousSlashAura = 202539;
 local _SuddenDeathAura = 280776;
 
--- Talents
--- Fury
-local _isFuriousSlash = false;
-local _isDragonRoar = false;
-local _isBladestorm = false;
-local _isSiegebreaker = false;
-local _isCaranage = false;
-local _isFrothingBerserker = false;
-
-MaxDps.Warrior = {};
-local talents = {};
-
-function MaxDps.Warrior.CheckTalents()
-	MaxDps:CheckTalents();
-	talents = MaxDps.PlayerTalents;
-	-- Fury
-	_isFuriousSlash = MaxDps:HasTalent(_FuriousSlash);	
-	_isDragonRoar = MaxDps:HasTalent(_DragonRoar);
-	_isBladestorm = MaxDps:HasTalent(_Bladestorm);
-	_isSiegebreaker = MaxDps:HasTalent(_Siegebreaker);
-	_isCaranage = MaxDps:HasTalent(_Carnage);
-	_isFrothingBerserker = MaxDps:HasTalent(_FrothingBerserker);
-end
-
 function Warrior:Enable()
-	MaxDps:Print(MaxDps.Colors.Info .. 'Warrior [Arms, Fury, Protection]');
-	MaxDps.ModuleOnEnable = MaxDps.Warrior.CheckTalents;
+	MaxDps:Print(MaxDps.Colors.Info .. 'Warrior [Arms, Fury, Protection]');	
 	if MaxDps.Spec == 1 then
 		MaxDps.NextSpell = Warrior.Arms;
 	elseif MaxDps.Spec == 2 then
@@ -75,9 +50,9 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	
 	local rampCost = 85;
 	
-	if _isCaranage then
+	if talents[_Carnage] then
 		rampCost = 75;
-	elseif _isFrothingBerserker then
+	elseif talents[_FrothingBerserker] then
 		rampCost = 95; 
 	end
 	
@@ -87,15 +62,13 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	
 	MaxDps:GlowCooldown(_Recklessness, MaxDps:SpellAvailable(_Recklessness, timeShift));
 	
-	if _isSiegebreaker then
+	if talents[_Siegebreaker] then
 		MaxDps:GlowCooldown(_Siegebreaker, MaxDps:SpellAvailable(_Siegebreaker, timeShift));
-	end
+	end	
 	
+	-- Rotation			
 	
-	-- Rotation	
-		
-	
-	if _isFuriousSlash then 
+	if talents[_FuriousSlash] then 
 		local fs, fsCount, fsTime = MaxDps:Aura(_FuriousSlashAura, timeShift);		
 		if MaxDps:SpellAvailable(_FuriousSlash, timeShift) and (fsTime <= 2 or fsCount < 3) then		
 			return _FuriousSlash;
@@ -125,9 +98,9 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 		return _Bloodthirst;
 	end	
 	
-	if _isDragonRoar and MaxDps:SpellAvailable(_DragonRoar, timeShift) and enrage then
+	if talents[_DragonRoar] and MaxDps:SpellAvailable(_DragonRoar, timeShift) and enrage then
 		return _DragonRoar;
-	elseif _isBladestorm and MaxDps:SpellAvailable(_Bladestorm, timeShift) and enrage then
+	elseif talents[_Bladestorm] and MaxDps:SpellAvailable(_Bladestorm, timeShift) and enrage then
 		return _Bladestorm;
 	end	
 	
@@ -135,7 +108,7 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 		return _RagingBlow;
 	end
 	
-	if _isFuriousSlash then 
+	if talents[_FuriousSlash] then 
 		if MaxDps:SpellAvailable(_FuriousSlash, timeShift) then
 			return _FuriousSlash;
 		end
