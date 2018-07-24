@@ -25,7 +25,7 @@ local _FrothingBerserker = 215571;
 
 -- Auras
 -- Fury
-local _Enrage = 184361;
+local _Enrage = 184362;
 local _FuriousSlashAura = 202539;
 local _SuddenDeathAura = 280776;
 
@@ -92,13 +92,8 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	end
 	
 	
-	if _isDragonRoar then		
-			MaxDps:GlowCooldown(_DragonRoar, MaxDps:SpellAvailable(_DragonRoar, timeShift));			
-	elseif _isBladestorm then
-		MaxDps:GlowCooldown(_Bladestorm, MaxDps:SpellAvailable(_Bladestorm, timeShift));
-	end
-	
 	-- Rotation	
+		
 	
 	if _isFuriousSlash then 
 		local fs, fsCount, fsTime = MaxDps:Aura(_FuriousSlashAura, timeShift);		
@@ -113,7 +108,7 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	
 	local tgtPctHp = MaxDps:TargetPercentHealth();
 	
-	if (tgtPctHp < 0.2 and enrage) or MaxDps:Aura(_SuddenDeathAura, timeShift) then
+	if (tgtPctHp < 0.2 and enrage) or (MaxDps:Aura(_SuddenDeathAura, timeShift) and enrage) then
 		return _Execute;
 	end
 	
@@ -128,6 +123,12 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	
 	if MaxDps:SpellAvailable(_Bloodthirst, timeShift) then
 		return _Bloodthirst;
+	end	
+	
+	if _isDragonRoar and MaxDps:SpellAvailable(_DragonRoar, timeShift) and enrage then
+		return _DragonRoar;
+	elseif _isBladestorm and MaxDps:SpellAvailable(_Bladestorm, timeShift) and enrage then
+		return _Bladestorm;
 	end	
 	
 	if MaxDps:SpellAvailable(_RagingBlow, timeShift) and rage <= rampCost then
