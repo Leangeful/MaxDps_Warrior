@@ -105,15 +105,17 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 		if MaxDps:SpellAvailable(_FuriousSlash, timeShift) and (fsTime <= 2 or fsCount < 3) then		
 			return _FuriousSlash;
 		end
-	end
+	end	
 	
 	if MaxDps:SpellAvailable(_Rampage, timeShift) and (rage >= 95 or (rage >= rampCost and not enrage)) then
 		return _Rampage;
-	end
-	
-	if MaxDps:SpellAvailable(_Execute, timeShift) and enrage then
-		return _Execute;
 	end	
+	
+	local tgtPctHp = MaxDps:TargetPercentHealth();
+	
+	if (tgtPctHp < 0.2 and enrage) or MaxDps:Aura(_SuddenDeathAura, timeShift) then
+		return _Execute;
+	end
 	
 	if MaxDps:SpellAvailable(_Bloodthirst, timeShift) and not enrage then
 		return _Bloodthirst;
