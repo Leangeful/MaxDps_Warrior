@@ -22,12 +22,14 @@ local _Carnage = 202922;
 local _VictoryRush = 34428;
 local _BattleShout = 6673;
 local _FrothingBerserker = 215571;
+local _Massacre =  206315;
 
 -- Auras
 -- Fury
 local _Enrage = 184362;
 local _FuriousSlashAura = 202539;
 local _SuddenDeathAura = 280776;
+
 
 function Warrior:Enable()
 	MaxDps:Print(MaxDps.Colors.Info .. 'Warrior [Arms, Fury, Protection]');	
@@ -46,43 +48,52 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	
 	local timeShift, currentSpell, gcd = MaxDps:EndCast();
 
-	local rage = UnitPower('player', 1);		
+	local rage = UnitPower('player', 1);	
+	local tgtPctHp = MaxDps:TargetPercentHealth();
 	
-	local rampCost = 85;
-	
+	local rampCost = 85;	
 	if talents[_Carnage] then
 		rampCost = 75;
 	elseif talents[_FrothingBerserker] then
-		rampCost = 95; 
+		rampCost = 95;
+	end	
+	
+	local execPct = 0.2;	
+	if talents[_Massacre] then
+		execPct = 0.35;
 	end
 	
 	local enrage = MaxDps:Aura(_Enrage, timeShift);
 	
 	-- CoolDowns
 	
-	MaxDps:GlowCooldown(_Recklessness, MaxDps:SpellAvailable(_Recklessness, timeShift));
+	MaxDps:GlowCooldown(_Recklessness, 
+			MaxDps:SpellAvailable(_Recklessness, timeShift));
 	
 	if talents[_Siegebreaker] then
-		MaxDps:GlowCooldown(_Siegebreaker, MaxDps:SpellAvailable(_Siegebreaker, timeShift));
+		MaxDps:GlowCooldown(_Siegebreaker, 
+				MaxDps:SpellAvailable(_Siegebreaker, timeShift));
 	end	
 	
 	-- Rotation			
 	
 	if talents[_FuriousSlash] then 
 		local fs, fsCount, fsTime = MaxDps:Aura(_FuriousSlashAura, timeShift);		
-		if MaxDps:SpellAvailable(_FuriousSlash, timeShift) and (fsTime <= 2 or fsCount < 3) then		
+		if MaxDps:SpellAvailable(_FuriousSlash, timeShift) and 
+				(fsTime <= 2 or fsCount < 3) then		
 			return _FuriousSlash;
 		end
 	end	
 	
-	if MaxDps:SpellAvailable(_Rampage, timeShift) and (rage >= 95 or (rage >= rampCost and not enrage)) then
+	if MaxDps:SpellAvailable(_Rampage, timeShift) and 
+			(rage >= 95 or (rage >= rampCost and not enrage)) then
 		return _Rampage;
-	end	
+	end		
 	
-	local tgtPctHp = MaxDps:TargetPercentHealth();
-	
-	if (tgtPctHp < 0.2 and enrage) or (MaxDps:Aura(_SuddenDeathAura, timeShift) and enrage) then
-		return _Execute;
+	if enrage and ((tgtPctHp < execPct and 
+					MaxDps:SpellAvailable(_Execute, timeShift)) or
+					MaxDps:Aura(_SuddenDeathAura, timeShift)) then
+			return _Execute;
 	end
 	
 	if MaxDps:SpellAvailable(_Bloodthirst, timeShift) and not enrage then
@@ -98,9 +109,11 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 		return _Bloodthirst;
 	end	
 	
-	if talents[_DragonRoar] and MaxDps:SpellAvailable(_DragonRoar, timeShift) and enrage then
+	if talents[_DragonRoar] and enrage and 
+			MaxDps:SpellAvailable(_DragonRoar, timeShift) then
 		return _DragonRoar;
-	elseif talents[_Bladestorm] and MaxDps:SpellAvailable(_Bladestorm, timeShift) and enrage then
+	elseif talents[_Bladestorm] and enrage and 
+			MaxDps:SpellAvailable(_Bladestorm, timeShift) then
 		return _Bladestorm;
 	end	
 	
