@@ -179,9 +179,6 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	
 	-- Rotation		
 
-	if MaxDps:IsSpellInRange(_Charge) and MaxDps:SpellAvailable(_Charge, timeShift) then
-		return _Charge;
-	end
 	
 	if talents[_FuriousSlash] then 
 		local fs, fsCount, fsTime = MaxDps:Aura(_FuriousSlashAura, timeShift);		
