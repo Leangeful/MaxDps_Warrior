@@ -76,8 +76,10 @@ function Warrior:Arms(timeShift, currentSpell, gcd, talents)
 	local rage = UnitPower('player', 1);	
 	
 	local tgtPctHp = MaxDps:TargetPercentHealth();		
-	local execPct = 0.2;	
+	local execPct = 0.2;
+	
 	if talents[_MassacreA] then
+		_ExecuteA = 281000;
 		execPct = 0.35;
 	end
 	
@@ -162,6 +164,7 @@ function Warrior:Fury(timeShift, currentSpell, gcd, talents)
 	
 	local execPct = 0.2;	
 	if talents[_Massacre] then
+		_Execute = 206315;
 		execPct = 0.35;
 	end
 	
